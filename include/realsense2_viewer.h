@@ -99,11 +99,9 @@ public:
     }
 
     void stop() {
-        cloudReceiverThread.detach();
         running = false;
-        sleep(1);
-
         spinner.stop();
+        sleep(2);
 
         if(useExact) {
             delete syncExact;
@@ -117,6 +115,7 @@ public:
         delete subCameraInfoColor;
         delete subCameraInfoDepth;
 
+        printf("[INFO] Realsense receiver stopped.\n");
     }
 
 private:
@@ -165,6 +164,7 @@ private:
 
 //        cloudViewer(); // 显示点云, 调试用
         cloudReceiverThread = std::thread(&RealsenseReceiver::cloudReceiver, this); // 获取和生成点云
+        cloudReceiverThread.detach(); // 将子线程从主线程里分离,子线程执行完成后会自己释放掉资源
     }
 
     void callback(const sensor_msgs::Image::ConstPtr& imageColor, const sensor_msgs::Image::ConstPtr& imageDepth,
@@ -215,8 +215,7 @@ private:
 
             rate.sleep();
         }
-
-        stop();
+        printf("[INFO] Cloud receiver stopped.\n");
     }
 
     void cloudViewer()

@@ -50,9 +50,6 @@ public:
     */
     OilFilterPose(ros::NodeHandle& node, std::string camera_frame, int rate);
 
-    ~OilFilterPose(){
-    }
-
     /**
      * \brief Run the ROS node. Loops while waiting for incoming ROS messages.
     */

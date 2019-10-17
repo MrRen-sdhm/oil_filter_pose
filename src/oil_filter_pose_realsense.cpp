@@ -429,13 +429,15 @@ void OilFilterPose::run(int loop_rate) {
         rate.sleep();
     }
 
-    printf("Exit...\n");
+    printf("[INFO] Exit oil filter detector...\n");
     receiver->stop();
 }
 
 void OilFilterPose::runShow(int loop_rate) {
     running = true;
-//    imageViewerThread = std::thread(&OilFilterPose::imageViewer, this);
+    // 启动图像显示线程
+    imageViewerThread = std::thread(&OilFilterPose::imageViewer, this);
+    imageViewerThread.detach(); // 将子线程从主线程里分离
 
     // PCLVisualizer初始化
     pcl::visualization::PCLVisualizer::Ptr visualizer(new pcl::visualization::PCLVisualizer("Cloud Viewer"));
@@ -475,15 +477,14 @@ void OilFilterPose::runShow(int loop_rate) {
         rate.sleep();
     }
 
-    printf("Exit...\n");
+    printf("[INFO] Exit oil filter detector...\n");
     visualizer->close();
-    ros::shutdown();
     receiver->stop();
 }
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "detect_oil_filter_pose");
+    ros::init(argc, argv, "oil_filter_pose");
     ros::NodeHandle node("~");
 
     // 参数解析
