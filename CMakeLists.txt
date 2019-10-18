@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(oil_filter_pose)
+project(oil_filler_pose)
 
 set(CMAKE_CXX_FLAGS "-O3 -fopenmp -fPIC -Wno-deprecated -Wenum-compare -Wno-ignored-attributes -std=c++14")
 
@@ -50,20 +50,20 @@ DEPENDS PCL
 ## Your package locations should be listed before other locations
 include_directories(include ${catkin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
 
-add_executable (oil_filter_seg src/oil_filter_seg.cpp)
-target_link_libraries (oil_filter_seg ${PCL_LIBRARIES} ${catkin_LIBRARIES})
+add_executable (oil_filler_seg src/oil_filler_seg.cpp)
+target_link_libraries (oil_filler_seg ${PCL_LIBRARIES} ${catkin_LIBRARIES})
 
 add_executable (center_pose src/center_pose.cpp)
 target_link_libraries (center_pose ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
-add_executable (oil_filter_pose src/oil_filter_pose.cpp)
-target_link_libraries (oil_filter_pose
+add_executable (oil_filler_pose src/oil_filler_pose.cpp)
+target_link_libraries (oil_filler_pose
         ${PCL_LIBRARIES}
         ${OpenCV_LIBRARIES}
         ${catkin_LIBRARIES})
 
-add_executable (oil_filter_pose_realsense src/oil_filter_pose_realsense.cpp include/oil_filter_pose_realsense.h)
-target_link_libraries (oil_filter_pose_realsense
+add_executable (oil_filler_pose_realsense src/oil_filler_pose_realsense.cpp include/oil_filler_pose_realsense.h)
+target_link_libraries (oil_filler_pose_realsense
         ${PCL_LIBRARIES}
         ${OpenCV_LIBRARIES}
         ${catkin_LIBRARIES}

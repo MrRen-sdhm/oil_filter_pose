@@ -1,6 +1,6 @@
 #include <utility>
 
-#include "oil_filter_pose_realsense.h"
+#include "oil_filler_pose_realsense.h"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ void plotFrame(pcl::visualization::PCLVisualizer::Ptr &viewer, const Eigen::Vect
     }
 }
 
-OilFilterPose::OilFilterPose(ros::NodeHandle& node, std::string camera_frame, int rate) :
+OilFillerPose::OilFillerPose(ros::NodeHandle& node, std::string camera_frame, int rate) :
                                                                 camera_frame_(std::move(camera_frame)), rate_(rate) {
     printf("Init ....\n");
 
@@ -49,7 +49,7 @@ OilFilterPose::OilFilterPose(ros::NodeHandle& node, std::string camera_frame, in
     cloud_of = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>());
 }
 
-void OilFilterPose::imageViewer()
+void OilFillerPose::imageViewer()
 {
     std::chrono::time_point<std::chrono::high_resolution_clock> start, now;
     double fps = 0;
@@ -107,7 +107,7 @@ void OilFilterPose::imageViewer()
     cv::waitKey(100);
 }
 
-void OilFilterPose::saveCloudAndImages() {
+void OilFillerPose::saveCloudAndImages() {
     std::string baseName, cloudName, colorName, colorDrawName, depthName;
 
     while (true) {
@@ -141,7 +141,7 @@ void OilFilterPose::saveCloudAndImages() {
     ++frame;
 }
 
-void OilFilterPose::keyboardEvent(const pcl::visualization::KeyboardEvent &event, void *viewer_void) {
+void OilFillerPose::keyboardEvent(const pcl::visualization::KeyboardEvent &event, void *viewer_void) {
     auto *viewer = static_cast<pcl::visualization::PCLVisualizer *>(viewer_void);
 
     if(event.keyDown()) {
@@ -166,7 +166,7 @@ void OilFilterPose::keyboardEvent(const pcl::visualization::KeyboardEvent &event
     }
 }
 
-void OilFilterPose::publishTF()
+void OilFillerPose::publishTF()
 {
     Eigen::Quaterniond quat(rot_matrix);
     tf::Quaternion tf_quat;
@@ -174,10 +174,10 @@ void OilFilterPose::publishTF()
 
     tf::Transform of_tf = tf::Transform(tf_quat, tf::Vector3(trans[0], trans[1], trans[2]));
 
-    broadcaster.sendTransform(tf::StampedTransform(of_tf, ros::Time::now(), camera_frame_, "oil_filter"));
+    broadcaster.sendTransform(tf::StampedTransform(of_tf, ros::Time::now(), camera_frame_, "oil_filler"));
 }
 
-bool OilFilterPose::ofDetect() {
+bool OilFillerPose::ofDetect() {
     color_draw = receiver->color.clone(); // 获取副本
 
     if (cloud->points.empty()) {
@@ -218,7 +218,7 @@ bool OilFilterPose::ofDetect() {
     cv::Point center(cvRound(circles[indice][0]), cvRound(circles[indice][1]));
     double radius = cvRound(circles[indice][2]);
     //绘制圆心
-    circle(color_draw, center, 2, cv::Scalar(0,255,0), -1, 8, 0 );
+    circle(color_draw, center, 4, cv::Scalar(0,255,0), -1, 8, 0 );
     //绘制圆轮廓
     circle(color_draw, center, (int)radius, cv::Scalar(0,0,255), 2, 8, 0 );
 
@@ -243,7 +243,7 @@ bool OilFilterPose::ofDetect() {
     return true;
 }
 
-bool OilFilterPose::ofPlaneCal() {
+bool OilFillerPose::ofPlaneCal() {
     /// 获取加油口无组织无色彩点云
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_tmp (new pcl::PointCloud<pcl::PointXYZ>);
     for (int row = of_rect.y; row < of_rect.y+of_rect.height; row++) {
@@ -326,7 +326,7 @@ bool OilFilterPose::ofPlaneCal() {
     return true;
 }
 
-void OilFilterPose::ofCenterCal() {
+void OilFillerPose::ofCenterCal() {
     const float coef_x = receiver->lookupX.at<float>(0, of_center.x); // 像素点与世界点x方向映射关系
     const float coef_y = receiver->lookupY.at<float>(0, of_center.y); // 像素点与世界点y方向映射关系
 
@@ -355,7 +355,7 @@ void OilFilterPose::ofCenterCal() {
 
 }
 
-void OilFilterPose::ofPoseCal() {
+void OilFillerPose::ofPoseCal() {
     double angle_y = atan(coef[0]/coef[2]); // 弧度(-pi/2,pi/2) atan(x/z) 法向量在xz平面投影与z轴夹角
     double angle_x = atan(coef[1]/coef[2]); // 弧度(-pi/2,pi/2) atan(y/z) 法向量在xy平面投影与z轴夹角
 //    printf("angle_x:%f rad  angle_y:%f rad", angle_x, angle_y);
@@ -374,7 +374,7 @@ void OilFilterPose::ofPoseCal() {
     cout << "rot_matrix =\n" << rot_matrix << endl;
 }
 
-void OilFilterPose::ofPoseShow(pcl::visualization::PCLVisualizer::Ptr &visualizer) {
+void OilFillerPose::ofPoseShow(pcl::visualization::PCLVisualizer::Ptr &visualizer) {
 
     // 显示平面
 //    pcl::ModelCoefficients coeffs;
@@ -414,7 +414,7 @@ void OilFilterPose::ofPoseShow(pcl::visualization::PCLVisualizer::Ptr &visualize
     plotFrame(visualizer, trans, rot_matrix, "frame", 0.06);
 }
 
-void OilFilterPose::run(int loop_rate) {
+void OilFillerPose::run(int loop_rate) {
     ros::Rate rate(loop_rate); // 与采集频率接近即可
     while(ros::ok()) {
         pcl::copyPointCloud(*receiver->cloud, *cloud); // copy原始点云
@@ -433,10 +433,10 @@ void OilFilterPose::run(int loop_rate) {
     receiver->stop();
 }
 
-void OilFilterPose::runShow(int loop_rate) {
+void OilFillerPose::runShow(int loop_rate) {
     running = true;
     // 启动图像显示线程
-    imageViewerThread = std::thread(&OilFilterPose::imageViewer, this);
+    imageViewerThread = std::thread(&OilFillerPose::imageViewer, this);
     imageViewerThread.detach(); // 将子线程从主线程里分离
 
     // PCLVisualizer初始化
@@ -448,7 +448,7 @@ void OilFilterPose::runShow(int loop_rate) {
     visualizer->setBackgroundColor(0, 0, 0);
     visualizer->setShowFPS(true);
     visualizer->setCameraPosition(0, 0, 0, 0, -1, 0);
-    visualizer->registerKeyboardCallback(&OilFilterPose::keyboardEvent, *this, (void *)visualizer.get());
+    visualizer->registerKeyboardCallback(&OilFillerPose::keyboardEvent, *this, (void *)visualizer.get());
 
     ros::Rate rate(loop_rate); // 与采集频率接近即可
     while (ros::ok() && running && !visualizer->wasStopped()) {
@@ -484,7 +484,7 @@ void OilFilterPose::runShow(int loop_rate) {
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "oil_filter_pose");
+    ros::init(argc, argv, "oil_filler_pose");
     ros::NodeHandle node("~");
 
     // 参数解析
@@ -500,7 +500,7 @@ int main(int argc, char** argv)
 
     int loop_rate = 15; // 与采集频率接近即可
 
-    OilFilterPose of_pose(node, camera_frame, loop_rate);
+    OilFillerPose of_pose(node, camera_frame, loop_rate);
     if (!show) {
         of_pose.run(loop_rate);
     } else {

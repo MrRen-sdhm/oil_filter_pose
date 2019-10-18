@@ -40,7 +40,7 @@ typedef pcl::PointCloud<pcl::PointXYZRGBA> PointCloudRGBA;
 typedef pcl::PointCloud<pcl::PointNormal> PointCloudPointNormal;
 
 
-class OilFilterPose
+class OilFillerPose
 {
 public:
 
@@ -48,7 +48,7 @@ public:
      * \brief Constructor.
      * \param node the ROS node
     */
-    OilFilterPose(ros::NodeHandle& node, std::string camera_frame, int rate);
+    OilFillerPose(ros::NodeHandle& node, std::string camera_frame, int rate);
 
     /**
      * \brief Run the ROS node. Loops while waiting for incoming ROS messages.

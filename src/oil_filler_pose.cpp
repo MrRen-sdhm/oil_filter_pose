@@ -339,7 +339,7 @@ int main ()
     visualizer->close();
 
     pcl::PCDWriter writer;
-//    writer.writeBinary("oil_filter.pcd", *cloud);
+//    writer.writeBinary("oil_filler.pcd", *cloud);
 
     return 0;
 }
